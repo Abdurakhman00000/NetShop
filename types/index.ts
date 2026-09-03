@@ -1,5 +1,6 @@
 /**
- * Shared TypeScript types will live here in later stages.
+ * Barrel for shared domain types.
+ * Prefer importing from specific modules when possible.
  */
 
-export {};
+export type * from './home';

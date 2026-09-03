@@ -1,28 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { PlaceholderScreen } from '@/components/ui/PlaceholderScreen';
 
 export default function CartScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Cart</Text>
-      <Text style={styles.subtitle}>NetShop — Корзина</Text>
-    </View>
+    <PlaceholderScreen
+      title="Корзина"
+      subtitle="Корзина появится на следующем этапе"
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '600',
-  },
-  subtitle: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#666666',
-  },
-});
