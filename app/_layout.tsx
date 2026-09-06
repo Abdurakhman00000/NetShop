@@ -10,10 +10,12 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
 
+import { Colors } from '@/constants/theme';
+import { hydrateAuth } from '@/store/authSlice';
 import { store } from '@/store';
 
 export { ErrorBoundary } from 'expo-router';
@@ -23,6 +25,14 @@ SplashScreen.preventAutoHideAsync().catch(() => undefined);
 export const unstable_settings = {
   initialRouteName: 'index',
 };
+
+function AuthBootstrap({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    void store.dispatch(hydrateAuth());
+  }, []);
+
+  return children;
+}
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -44,14 +54,24 @@ export default function RootLayout() {
 
   return (
     <Provider store={store}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="auto" />
-        <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
-          <Stack.Screen name="index" options={{ animation: 'none' }} />
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-      </GestureHandlerRootView>
+      <AuthBootstrap>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <StatusBar style="auto" />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: 'fade',
+              contentStyle: { backgroundColor: Colors.background },
+            }}
+          >
+            <Stack.Screen name="index" options={{ animation: 'none' }} />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="(auth)" options={{ animation: 'slide_from_bottom' }} />
+            <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </GestureHandlerRootView>
+      </AuthBootstrap>
     </Provider>
   );
 }

@@ -9,10 +9,16 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.netshop.app"
+      "bundleIdentifier": "com.netshop.app",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
+        }
+      }
     },
     "android": {
       "package": "com.netshop.app",
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -43,7 +49,7 @@
       "typedRoutes": true
     },
     "extra": {
-      "apiUrl": "https://api.example.com"
+      "apiUrl": "http://169.58.192.208:8005/api/v1"
     }
   }
 }

@@ -86,6 +86,9 @@ export type ApiFailure = {
   error: {
     code: string;
     message: string;
+    fields?: Record<string, string[]>;
+    status?: number;
+    retryAfter?: number;
   };
 };
 

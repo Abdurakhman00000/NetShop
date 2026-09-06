@@ -1,12 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
 
-/**
- * Minimal store scaffold. Feature slices / RTK Query APIs will plug in here.
- */
+import { authReducer } from './authSlice';
+
 export const store = configureStore({
   reducer: {
-    // placeholder keeps configureStore typed until first slice lands
-    _app: (state = { ready: true }) => state,
+    auth: authReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
