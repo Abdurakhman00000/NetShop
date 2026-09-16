@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { memo, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -6,15 +6,21 @@ import { AppLogo, LocationChip } from '@/components/ui/AppLogo';
 import { AvatarButton } from '@/components/ui/AvatarButton';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { Spacing } from '@/constants/theme';
-import type { HomeLocation } from '@/types/home';
+import { useAppSelector } from '@/store/hooks';
 
-type HomeHeaderProps = {
-  location: HomeLocation;
-};
+function HomeHeaderComponent() {
+  const selectedCity = useAppSelector((s) => s.city.selected);
 
-function HomeHeaderComponent({ location }: HomeHeaderProps) {
   const openProfile = useCallback(() => {
     router.push('/(tabs)/profile');
+  }, []);
+
+  const openCity = useCallback(() => {
+    router.push('/city' as Href);
+  }, []);
+
+  const openCatalog = useCallback(() => {
+    router.push('/(tabs)/catalog');
   }, []);
 
   return (
@@ -22,11 +28,14 @@ function HomeHeaderComponent({ location }: HomeHeaderProps) {
       <View style={styles.topRow}>
         <View>
           <AppLogo variant="dark" size="md" />
-          <LocationChip city={location.city} />
+          <LocationChip
+            city={selectedCity?.name ?? 'Выберите город'}
+            onPress={openCity}
+          />
         </View>
         <AvatarButton onPress={openProfile} />
       </View>
-      <SearchBar />
+      <SearchBar onPress={openCatalog} placeholder="Поиск товаров и услуг" />
     </View>
   );
 }

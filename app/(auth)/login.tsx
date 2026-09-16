@@ -12,6 +12,7 @@ import {
 import { AuthButton, AuthScreenShell, AuthTextField } from '@/components/auth';
 import { Colors, FontSize, Spacing } from '@/constants/theme';
 import { clearAuthError, login } from '@/store/authSlice';
+import { loadCart } from '@/store/cartSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 const REGISTER_HREF = '/(auth)/register' as Href;
@@ -36,6 +37,7 @@ export default function LoginScreen() {
       login({ email: email.trim().toLowerCase(), password }),
     );
     if (login.fulfilled.match(result)) {
+      void dispatch(loadCart());
       router.replace('/(tabs)/profile' as Href);
     }
   }, [dispatch, email, password]);

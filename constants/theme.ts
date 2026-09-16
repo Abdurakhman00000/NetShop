@@ -24,6 +24,10 @@ export const Colors = {
   overlayStrong: 'rgba(0,0,0,0.55)',
 
   tabInactive: '#9A9A9A',
+  tabBarCapsule: '#1C1C1E',
+  tabBarActiveBg: '#FFFFFF',
+  tabBarActiveFg: '#1C1C1E',
+  tabBarInactiveIcon: '#FFFFFF',
   avatarBg: '#EDE7F6',
   avatarIcon: '#7E57C2',
 

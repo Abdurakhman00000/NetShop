@@ -74,7 +74,7 @@ export default function HomeScreen() {
         // Keep scroll work light while images decode
         removeClippedSubviews
       >
-        <HomeHeader location={data.location} />
+        <HomeHeader />
 
         <View style={styles.sectionPad}>
           <HeroBanner data={data.hero} />

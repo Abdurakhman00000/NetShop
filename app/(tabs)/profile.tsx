@@ -20,15 +20,18 @@ import {
 } from '@/components/profile';
 import { Colors, FontSize, Spacing } from '@/constants/theme';
 import { fetchProfile, logout } from '@/store/authSlice';
+import { clearCart } from '@/store/cartSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 const LOGIN_HREF = '/(auth)/login' as Href;
 const REGISTER_HREF = '/(auth)/register' as Href;
 const EDIT_PROFILE_HREF = '/profile/edit' as Href;
 
+const ORDERS_HREF = '/orders' as Href;
+const SELLER_HREF = '/seller' as Href;
+
 /**
- * Placeholder counts until orders/favorites/reviews endpoints are wired.
- * Keeps the profile layout matching the design reference.
+ * Placeholder counts until favorites/reviews endpoints are wired.
  */
 const PLACEHOLDER_STATS = { orders: 0, reviews: 0, favorites: 0 };
 
@@ -58,7 +61,9 @@ export default function ProfileScreen() {
         text: 'Выйти',
         style: 'destructive',
         onPress: () => {
-          void dispatch(logout());
+          void dispatch(logout()).then(() => {
+            dispatch(clearCart());
+          });
         },
       },
     ]);
@@ -66,15 +71,16 @@ export default function ProfileScreen() {
 
   const menuItems = useMemo<ProfileMenuItem[]>(() => {
     const isProvider = Boolean(user?.provider_status);
+    const hasStore = Boolean(user?.has_store);
     return [
       {
         id: 'orders',
         title: 'Мои заказы',
-        subtitle: 'Заказы появятся после оформления',
+        subtitle: 'История и статусы заказов',
         icon: 'cube-outline',
         iconBg: '#F3E9DC',
         iconColor: '#8B5E3C',
-        onPress: () => Alert.alert('Скоро', 'Раздел заказов подключится следующим этапом.'),
+        onPress: () => router.push(ORDERS_HREF),
       },
       {
         id: 'favorites',
@@ -101,6 +107,16 @@ export default function ProfileScreen() {
         iconBg: '#FFF8E1',
         iconColor: '#F9A825',
         onPress: () => Alert.alert('Скоро', 'Кабинет услуг подключится следующим этапом.'),
+      },
+      {
+        id: 'store',
+        title: hasStore ? 'Мой магазин' : 'Открыть магазин',
+        subtitle: hasStore ? 'Товары и витрина' : 'Начните продавать товары',
+        icon: 'storefront-outline',
+        iconBg: '#E8F5E9',
+        iconColor: '#2E7D32',
+        accentTitle: !hasStore,
+        onPress: () => router.push(SELLER_HREF),
       },
       {
         id: 'become-provider',
@@ -133,7 +149,7 @@ export default function ProfileScreen() {
         onPress: () => Alert.alert('Помощь', 'Напишите нам на support@netshop.dev'),
       },
     ];
-  }, [user?.provider_status]);
+  }, [user?.has_store, user?.provider_status]);
 
   if (!bootstrapped) {
     return (

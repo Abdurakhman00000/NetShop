@@ -16,6 +16,8 @@ import { Provider } from 'react-redux';
 
 import { Colors } from '@/constants/theme';
 import { hydrateAuth } from '@/store/authSlice';
+import { loadCart } from '@/store/cartSlice';
+import { hydrateCity, loadCities } from '@/store/citySlice';
 import { store } from '@/store';
 
 export { ErrorBoundary } from 'expo-router';
@@ -28,7 +30,15 @@ export const unstable_settings = {
 
 function AuthBootstrap({ children }: { children: ReactNode }) {
   useEffect(() => {
-    void store.dispatch(hydrateAuth());
+    void (async () => {
+      await store.dispatch(hydrateAuth());
+      await store.dispatch(hydrateCity());
+      await store.dispatch(loadCities());
+      const auth = store.getState().auth;
+      if (auth.status === 'authenticated') {
+        void store.dispatch(loadCart());
+      }
+    })();
   }, []);
 
   return children;
@@ -68,6 +78,12 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="(auth)" options={{ animation: 'slide_from_bottom' }} />
             <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="product" options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="service" options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="orders" options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="seller" options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="checkout" options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen name="city" options={{ animation: 'slide_from_bottom', presentation: 'modal' }} />
             <Stack.Screen name="+not-found" />
           </Stack>
         </GestureHandlerRootView>
