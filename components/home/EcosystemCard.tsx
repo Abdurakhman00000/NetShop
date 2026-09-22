@@ -14,17 +14,25 @@ type EcosystemCardProps = {
 
 function EcosystemCardComponent({ item, onPress }: EcosystemCardProps) {
   const featured = item.size === 'featured';
+  const disabled = Boolean(item.disabled);
 
   const handlePress = useCallback(() => {
+    if (disabled) return;
     onPress?.(item);
-  }, [item, onPress]);
+  }, [disabled, item, onPress]);
 
   return (
     <Pressable
       onPress={handlePress}
-      style={[styles.card, featured ? styles.featured : styles.grid]}
+      disabled={disabled}
+      style={[
+        styles.card,
+        featured ? styles.featured : styles.grid,
+        disabled && styles.disabled,
+      ]}
       accessibilityRole="button"
       accessibilityLabel={item.title}
+      accessibilityState={{ disabled }}
     >
       <Image
         source={item.image}
@@ -34,6 +42,7 @@ function EcosystemCardComponent({ item, onPress }: EcosystemCardProps) {
         cachePolicy="memory-disk"
       />
       <View style={[StyleSheet.absoluteFill, { backgroundColor: item.overlayColor }]} />
+      {disabled ? <View style={styles.disabledOverlay} pointerEvents="none" /> : null}
 
       <View style={styles.topRow}>
         <IconCircle icon={item.icon} size={featured ? 38 : 34} />
@@ -49,7 +58,11 @@ function EcosystemCardComponent({ item, onPress }: EcosystemCardProps) {
             {item.description}
           </Text>
         </View>
-        <ArrowCircleButton onPress={handlePress} size={featured ? 38 : 34} />
+        <ArrowCircleButton
+          onPress={disabled ? undefined : handlePress}
+          size={featured ? 38 : 34}
+          disabled={disabled}
+        />
       </View>
     </Pressable>
   );
@@ -71,6 +84,17 @@ const styles = StyleSheet.create({
   grid: {
     flex: 1,
     minHeight: 168,
+  },
+  disabled: {
+    opacity: 0.45,
+  },
+  disabledOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255,255,255,0.22)',
   },
   topRow: {
     flexDirection: 'row',

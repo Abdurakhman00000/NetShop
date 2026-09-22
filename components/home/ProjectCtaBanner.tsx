@@ -11,8 +11,10 @@ type ProjectCtaBannerProps = {
 };
 
 function ProjectCtaBannerComponent({ data, onPress }: ProjectCtaBannerProps) {
+  const disabled = Boolean(data.disabled);
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, disabled && styles.containerDisabled]}>
       <View style={styles.iconWrap}>
         <Ionicons name="home-outline" size={20} color={Colors.brand} />
       </View>
@@ -21,10 +23,12 @@ function ProjectCtaBannerComponent({ data, onPress }: ProjectCtaBannerProps) {
         <Text style={styles.subtitle}>{data.subtitle}</Text>
       </View>
       <Pressable
-        onPress={onPress}
-        style={styles.button}
+        onPress={disabled ? undefined : onPress}
+        disabled={disabled}
+        style={[styles.button, disabled && styles.buttonDisabled]}
         accessibilityRole="button"
         accessibilityLabel={data.buttonLabel}
+        accessibilityState={{ disabled }}
       >
         <Text style={styles.buttonText}>{data.buttonLabel}</Text>
       </Pressable>
@@ -44,6 +48,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: Radii.xl,
     padding: Spacing.md,
+  },
+  containerDisabled: {
+    opacity: 0.45,
   },
   iconWrap: {
     width: 40,
@@ -72,6 +79,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: 10,
     borderRadius: Radii.md,
+  },
+  buttonDisabled: {
+    backgroundColor: Colors.textMuted,
   },
   buttonText: {
     color: Colors.textOnDark,

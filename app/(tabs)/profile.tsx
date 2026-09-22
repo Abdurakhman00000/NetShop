@@ -1,8 +1,10 @@
+import { Ionicons } from '@expo/vector-icons';
 import { router, type Href } from 'expo-router';
 import { useCallback, useEffect, useMemo } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -19,20 +21,15 @@ import {
   type ProfileMenuItem,
 } from '@/components/profile';
 import { Colors, FontSize, Spacing } from '@/constants/theme';
-import { fetchProfile, logout } from '@/store/authSlice';
-import { clearCart } from '@/store/cartSlice';
+import { fetchProfile } from '@/store/authSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 
 const LOGIN_HREF = '/(auth)/login' as Href;
 const REGISTER_HREF = '/(auth)/register' as Href;
-const EDIT_PROFILE_HREF = '/profile/edit' as Href;
-
+const SETTINGS_HREF = '/profile/settings' as Href;
 const ORDERS_HREF = '/orders' as Href;
 const SELLER_HREF = '/seller' as Href;
 
-/**
- * Placeholder counts until favorites/reviews endpoints are wired.
- */
 const PLACEHOLDER_STATS = { orders: 0, reviews: 0, favorites: 0 };
 
 export default function ProfileScreen() {
@@ -53,21 +50,6 @@ export default function ProfileScreen() {
       void dispatch(fetchProfile());
     }
   }, [dispatch, status]);
-
-  const onLogout = useCallback(() => {
-    Alert.alert('Выйти из аккаунта?', 'Сессия будет завершена на этом устройстве.', [
-      { text: 'Отмена', style: 'cancel' },
-      {
-        text: 'Выйти',
-        style: 'destructive',
-        onPress: () => {
-          void dispatch(logout()).then(() => {
-            dispatch(clearCart());
-          });
-        },
-      },
-    ]);
-  }, [dispatch]);
 
   const menuItems = useMemo<ProfileMenuItem[]>(() => {
     const isProvider = Boolean(user?.provider_status);
@@ -125,20 +107,7 @@ export default function ProfileScreen() {
         icon: 'star',
         iconBg: '#FFF3E0',
         iconColor: '#FB8C00',
-        accentTitle: !isProvider,
-        onPress: () =>
-          Alert.alert(
-            isProvider ? 'Кабинет' : 'Стать исполнителем',
-            'Сценарий исполнителя подключится следующим этапом.',
-          ),
-      },
-      {
-        id: 'settings',
-        title: 'Настройки',
-        icon: 'settings-outline',
-        iconBg: '#EDE7F6',
-        iconColor: '#7E57C2',
-        onPress: () => Alert.alert('Скоро', 'Настройки появятся позже.'),
+        disabled: true,
       },
       {
         id: 'help',
@@ -146,7 +115,7 @@ export default function ProfileScreen() {
         icon: 'help-circle',
         iconBg: '#FCE4EC',
         iconColor: '#EC407A',
-        onPress: () => Alert.alert('Помощь', 'Напишите нам на support@netshop.dev'),
+        disabled: true,
       },
     ];
   }, [user?.has_store, user?.provider_status]);
@@ -198,15 +167,22 @@ export default function ProfileScreen() {
         />
       }
     >
-      <ProfileHeader
-        user={user}
-        onEdit={() => router.push(EDIT_PROFILE_HREF)}
-      />
+      <View style={styles.topBar}>
+        <Text style={styles.screenTitle}>Профиль</Text>
+        <Pressable
+          onPress={() => router.push(SETTINGS_HREF)}
+          hitSlop={10}
+          style={styles.settingsBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Настройки"
+        >
+          <Ionicons name="settings-outline" size={22} color={Colors.text} />
+        </Pressable>
+      </View>
+
+      <ProfileHeader user={user} />
       <ProfileStats stats={PLACEHOLDER_STATS} />
       <ProfileMenu items={menuItems} />
-      <View style={styles.logoutWrap}>
-        <AuthButton label="Выйти" variant="ghost" onPress={onLogout} />
-      </View>
     </ScrollView>
   );
 }
@@ -215,6 +191,27 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: Colors.surface,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.sm,
+  },
+  screenTitle: {
+    fontFamily: 'PlayfairDisplay_700Bold',
+    fontSize: FontSize.xxl,
+    color: Colors.text,
+  },
+  settingsBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.background,
   },
   centered: {
     flex: 1,
@@ -244,9 +241,5 @@ const styles = StyleSheet.create({
   },
   guestBtn: {
     alignSelf: 'stretch',
-  },
-  logoutWrap: {
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.md,
   },
 });

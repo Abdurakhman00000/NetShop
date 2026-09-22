@@ -1,6 +1,6 @@
-import { memo, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { memo, useState } from 'react';
+import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
 import { Colors, FontSize, Radii, Spacing } from '@/constants/theme';
 
@@ -9,18 +9,23 @@ type SearchFieldProps = {
   onChangeText: (text: string) => void;
   placeholder?: string;
   onSubmit?: () => void;
-};
+  autoFocus?: boolean;
+  /** Remove horizontal margin when embedded in custom layouts. */
+  flush?: boolean;
+} & Pick<TextInputProps, 'onFocus' | 'onBlur'>;
 
 function SearchFieldComponent({
   value,
   onChangeText,
   placeholder = 'Поиск',
   onSubmit,
+  autoFocus = false,
+  flush = false,
 }: SearchFieldProps) {
   const [focused, setFocused] = useState(false);
 
   return (
-    <View style={[styles.wrap, focused && styles.focused]}>
+    <View style={[styles.wrap, flush && styles.flush, focused && styles.focused]}>
       <Ionicons name="search" size={18} color={Colors.textMuted} />
       <TextInput
         value={value}
@@ -33,7 +38,20 @@ function SearchFieldComponent({
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         autoCorrect={false}
+        autoCapitalize="none"
+        autoFocus={autoFocus}
+        clearButtonMode="never"
       />
+      {value.length > 0 ? (
+        <Pressable
+          onPress={() => onChangeText('')}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel="Очистить"
+        >
+          <Ionicons name="close-circle" size={18} color={Colors.textMuted} />
+        </Pressable>
+      ) : null}
     </View>
   );
 }
@@ -52,6 +70,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     marginHorizontal: Spacing.lg,
+  },
+  flush: {
+    marginHorizontal: 0,
   },
   focused: {
     borderColor: Colors.brand,

@@ -7,6 +7,7 @@ type SectionHeaderProps = {
   title: string;
   actionLabel?: string;
   onActionPress?: () => void;
+  actionDisabled?: boolean;
   meta?: string;
 };
 
@@ -14,6 +15,7 @@ function SectionHeaderComponent({
   title,
   actionLabel,
   onActionPress,
+  actionDisabled = false,
   meta,
 }: SectionHeaderProps) {
   return (
@@ -26,8 +28,15 @@ function SectionHeaderComponent({
         </View>
       ) : null}
       {actionLabel ? (
-        <Pressable onPress={onActionPress} hitSlop={8}>
-          <Text style={styles.action}>{actionLabel}</Text>
+        <Pressable
+          onPress={actionDisabled ? undefined : onActionPress}
+          disabled={actionDisabled}
+          hitSlop={8}
+          accessibilityState={{ disabled: actionDisabled }}
+        >
+          <Text style={[styles.action, actionDisabled && styles.actionDisabled]}>
+            {actionLabel}
+          </Text>
         </Pressable>
       ) : null}
     </View>
@@ -70,5 +79,8 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     color: Colors.brand,
     fontWeight: '600',
+  },
+  actionDisabled: {
+    color: Colors.textMuted,
   },
 });

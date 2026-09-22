@@ -19,8 +19,8 @@ function HomeHeaderComponent() {
     router.push('/city' as Href);
   }, []);
 
-  const openCatalog = useCallback(() => {
-    router.push('/(tabs)/catalog');
+  const openSearch = useCallback(() => {
+    router.push('/search' as Href);
   }, []);
 
   return (
@@ -35,7 +35,7 @@ function HomeHeaderComponent() {
         </View>
         <AvatarButton onPress={openProfile} />
       </View>
-      <SearchBar onPress={openCatalog} placeholder="Поиск товаров и услуг" />
+      <SearchBar onPress={openSearch} placeholder="Поиск товаров и услуг" />
     </View>
   );
 }

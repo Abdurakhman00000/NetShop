@@ -12,16 +12,24 @@ const CARD_HEIGHT = 168;
 
 type InspirationCardProps = {
   item: InspirationItem;
+  disabled?: boolean;
   onPress?: (item: InspirationItem) => void;
 };
 
-function InspirationCardComponent({ item, onPress }: InspirationCardProps) {
+function InspirationCardComponent({ item, disabled, onPress }: InspirationCardProps) {
+  const isDisabled = disabled || Boolean(item.disabled);
+
   return (
     <Pressable
-      onPress={() => onPress?.(item)}
-      style={styles.card}
+      onPress={() => {
+        if (isDisabled) return;
+        onPress?.(item);
+      }}
+      disabled={isDisabled}
+      style={[styles.card, isDisabled && styles.cardDisabled]}
       accessibilityRole="button"
       accessibilityLabel={item.title}
+      accessibilityState={{ disabled: isDisabled }}
     >
       <Image
         source={item.image}
@@ -34,6 +42,7 @@ function InspirationCardComponent({ item, onPress }: InspirationCardProps) {
         colors={['transparent', 'rgba(0,0,0,0.7)']}
         style={StyleSheet.absoluteFill}
       />
+      {isDisabled ? <View style={styles.disabledOverlay} pointerEvents="none" /> : null}
       <Text style={styles.label}>{item.title}</Text>
     </Pressable>
   );
@@ -52,20 +61,29 @@ function InspirationSectionComponent({
   onSeeAll,
   onItemPress,
 }: InspirationSectionProps) {
+  const sectionDisabled = Boolean(data.disabled);
+
   const renderItem = useCallback<ListRenderItem<InspirationItem>>(
-    ({ item }) => <InspirationCard item={item} onPress={onItemPress} />,
-    [onItemPress],
+    ({ item }) => (
+      <InspirationCard
+        item={item}
+        disabled={sectionDisabled}
+        onPress={sectionDisabled ? undefined : onItemPress}
+      />
+    ),
+    [onItemPress, sectionDisabled],
   );
 
   const keyExtractor = useCallback((item: InspirationItem) => item.id, []);
 
   return (
-    <View>
+    <View style={sectionDisabled ? styles.sectionDisabled : undefined}>
       <View style={styles.headerPad}>
         <SectionHeader
           title={data.title}
           actionLabel={data.seeAllLabel}
-          onActionPress={onSeeAll}
+          onActionPress={sectionDisabled ? undefined : onSeeAll}
+          actionDisabled={sectionDisabled}
         />
       </View>
       <FlatList
@@ -76,10 +94,10 @@ function InspirationSectionComponent({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.list}
         ItemSeparatorComponent={Separator}
-        // Performance: keep offscreen work low for horizontal carousels
         initialNumToRender={3}
         windowSize={3}
         removeClippedSubviews
+        scrollEnabled={!sectionDisabled}
       />
     </View>
   );
@@ -92,6 +110,9 @@ function Separator() {
 export const InspirationSection = memo(InspirationSectionComponent);
 
 const styles = StyleSheet.create({
+  sectionDisabled: {
+    opacity: 0.72,
+  },
   headerPad: {
     paddingHorizontal: Spacing.lg,
   },
@@ -106,6 +127,17 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     padding: Spacing.md,
     backgroundColor: Colors.surface,
+  },
+  cardDisabled: {
+    opacity: 0.55,
+  },
+  disabledOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255,255,255,0.28)',
   },
   label: {
     color: Colors.textOnDark,

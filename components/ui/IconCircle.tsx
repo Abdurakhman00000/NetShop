@@ -42,12 +42,18 @@ export const IconCircle = memo(IconCircleComponent);
 type ArrowCircleButtonProps = {
   onPress?: () => void;
   size?: number;
+  disabled?: boolean;
 };
 
-function ArrowCircleButtonComponent({ onPress, size = 36 }: ArrowCircleButtonProps) {
+function ArrowCircleButtonComponent({
+  onPress,
+  size = 36,
+  disabled = false,
+}: ArrowCircleButtonProps) {
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
       hitSlop={6}
       style={[
         styles.arrow,
@@ -56,9 +62,11 @@ function ArrowCircleButtonComponent({ onPress, size = 36 }: ArrowCircleButtonPro
           height: size,
           borderRadius: size / 2,
         },
+        disabled && styles.arrowDisabled,
       ]}
       accessibilityRole="button"
       accessibilityLabel="Открыть"
+      accessibilityState={{ disabled }}
     >
       <Ionicons name="arrow-forward" size={size * 0.42} color={Colors.text} />
     </Pressable>
@@ -77,5 +85,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.textOnDark,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  arrowDisabled: {
+    opacity: 0.55,
   },
 });

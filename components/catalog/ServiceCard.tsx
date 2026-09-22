@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Colors, FontSize, Radii, Spacing } from '@/constants/theme';
@@ -22,6 +22,9 @@ function priceLabel(item: ServiceListItem): string {
 }
 
 function ServiceCardComponent({ item, onPress }: ServiceCardProps) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const showImage = Boolean(item.cover) && !imageFailed;
+
   return (
     <Pressable
       onPress={onPress}
@@ -30,11 +33,16 @@ function ServiceCardComponent({ item, onPress }: ServiceCardProps) {
       accessibilityLabel={item.title}
     >
       <View style={styles.imageWrap}>
-        {item.cover ? (
-          <Image source={{ uri: item.cover }} style={styles.image} contentFit="cover" />
+        {showImage ? (
+          <Image
+            source={{ uri: item.cover! }}
+            style={styles.image}
+            contentFit="cover"
+            onError={() => setImageFailed(true)}
+          />
         ) : (
           <View style={styles.placeholder}>
-            <Text style={styles.placeholderText}>Услуга</Text>
+            <Text style={styles.placeholderText}>Нет фото</Text>
           </View>
         )}
       </View>
@@ -56,20 +64,24 @@ export const ServiceCard = memo(ServiceCardComponent);
 
 const styles = StyleSheet.create({
   card: {
+    flex: 1,
     backgroundColor: Colors.surfaceElevated,
     borderRadius: Radii.lg,
     overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: Colors.border,
-    flexDirection: 'row',
-    minHeight: 112,
   },
-  pressed: { opacity: 0.92 },
+  pressed: {
+    opacity: 0.92,
+  },
   imageWrap: {
-    width: 112,
+    aspectRatio: 1,
     backgroundColor: Colors.surface,
   },
-  image: { width: '100%', height: '100%' },
+  image: {
+    width: '100%',
+    height: '100%',
+  },
   placeholder: {
     flex: 1,
     alignItems: 'center',
@@ -82,10 +94,8 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
   },
   body: {
-    flex: 1,
     padding: Spacing.md,
     gap: 4,
-    justifyContent: 'center',
   },
   category: {
     fontFamily: 'DMSans_400Regular',
@@ -94,13 +104,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'DMSans_500Medium',
-    fontSize: FontSize.md,
+    fontSize: FontSize.sm,
     color: Colors.text,
+    minHeight: 36,
   },
   price: {
     fontFamily: 'DMSans_700Bold',
     fontSize: FontSize.md,
     color: Colors.brand,
+    marginTop: 2,
   },
   meta: {
     fontFamily: 'DMSans_400Regular',

@@ -12,6 +12,7 @@ export type ProfileMenuItem = {
   iconBg: ColorValue;
   iconColor: ColorValue;
   accentTitle?: boolean;
+  disabled?: boolean;
   onPress?: () => void;
 };
 
@@ -20,26 +21,46 @@ type ProfileMenuProps = {
 };
 
 function MenuRow({ item, isLast }: { item: ProfileMenuItem; isLast: boolean }) {
+  const disabled = Boolean(item.disabled);
+
   return (
     <Pressable
-      onPress={item.onPress}
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      onPress={disabled ? undefined : item.onPress}
+      disabled={disabled}
+      style={({ pressed }) => [
+        styles.row,
+        disabled && styles.rowDisabled,
+        pressed && !disabled && styles.pressed,
+      ]}
       accessibilityRole="button"
       accessibilityLabel={item.title}
+      accessibilityState={{ disabled }}
     >
       <View style={[styles.iconWrap, { backgroundColor: item.iconBg }]}>
         <Ionicons name={item.icon} size={20} color={item.iconColor} />
       </View>
       <View style={[styles.copy, !isLast && styles.rowBorder]}>
         <View style={styles.textCol}>
-          <Text style={[styles.title, item.accentTitle && styles.titleAccent]}>
+          <Text
+            style={[
+              styles.title,
+              item.accentTitle && !disabled && styles.titleAccent,
+              disabled && styles.titleDisabled,
+            ]}
+          >
             {item.title}
           </Text>
           {item.subtitle ? (
-            <Text style={styles.subtitle}>{item.subtitle}</Text>
+            <Text style={[styles.subtitle, disabled && styles.subtitleDisabled]}>
+              {item.subtitle}
+            </Text>
           ) : null}
         </View>
-        <Ionicons name="chevron-forward" size={18} color={Colors.textMuted} />
+        <Ionicons
+          name="chevron-forward"
+          size={18}
+          color={disabled ? Colors.border : Colors.textMuted}
+        />
       </View>
     </Pressable>
   );
@@ -72,6 +93,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: Spacing.lg,
     minHeight: 64,
+  },
+  rowDisabled: {
+    opacity: 0.42,
   },
   pressed: {
     backgroundColor: Colors.brandSoft,
@@ -109,9 +133,15 @@ const styles = StyleSheet.create({
     color: Colors.brand,
     fontFamily: 'DMSans_700Bold',
   },
+  titleDisabled: {
+    color: Colors.textSecondary,
+  },
   subtitle: {
     fontFamily: 'DMSans_400Regular',
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
+  },
+  subtitleDisabled: {
+    color: Colors.textMuted,
   },
 });

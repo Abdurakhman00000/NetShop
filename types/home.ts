@@ -22,6 +22,8 @@ export type EcosystemDirection = {
   overlayColor: string;
   size: EcosystemSize;
   href?: string;
+  /** Temporary: block stays visible but muted and non-interactive. */
+  disabled?: boolean;
 };
 
 export type InspirationItem = {
@@ -29,6 +31,7 @@ export type InspirationItem = {
   title: string;
   image: MediaSource;
   href?: string;
+  disabled?: boolean;
 };
 
 export type HeroBanner = {
@@ -42,6 +45,7 @@ export type ProjectCta = {
   title: string;
   subtitle: string;
   buttonLabel: string;
+  disabled?: boolean;
 };
 
 export type HomeLocation = {
@@ -68,6 +72,8 @@ export type HomeFeed = {
     title: string;
     seeAllLabel: string;
     items: InspirationItem[];
+    /** Temporary: whole section muted / non-interactive. */
+    disabled?: boolean;
   };
   projectCta: ProjectCta;
 };

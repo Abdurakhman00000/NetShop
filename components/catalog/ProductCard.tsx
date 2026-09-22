@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Colors, FontSize, Radii, Spacing } from '@/constants/theme';
@@ -12,6 +12,9 @@ type ProductCardProps = {
 };
 
 function ProductCardComponent({ item, onPress }: ProductCardProps) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const showImage = Boolean(item.cover) && !imageFailed;
+
   return (
     <Pressable
       onPress={onPress}
@@ -20,8 +23,13 @@ function ProductCardComponent({ item, onPress }: ProductCardProps) {
       accessibilityLabel={item.title}
     >
       <View style={styles.imageWrap}>
-        {item.cover ? (
-          <Image source={{ uri: item.cover }} style={styles.image} contentFit="cover" />
+        {showImage ? (
+          <Image
+            source={{ uri: item.cover! }}
+            style={styles.image}
+            contentFit="cover"
+            onError={() => setImageFailed(true)}
+          />
         ) : (
           <View style={styles.placeholder}>
             <Text style={styles.placeholderText}>Нет фото</Text>

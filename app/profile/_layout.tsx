@@ -11,6 +11,7 @@ export default function ProfileStackLayout() {
         animation: 'slide_from_right',
       }}
     >
+      <Stack.Screen name="settings" />
       <Stack.Screen name="edit" />
     </Stack>
   );

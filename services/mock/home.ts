@@ -57,7 +57,7 @@ export const mockHomeFeed: HomeFeed = {
         image: HomeImages.premium,
         overlayColor: 'rgba(92, 58, 36, 0.58)',
         size: 'grid',
-        href: '/(tabs)/catalog',
+        disabled: true,
       },
       {
         id: 'constructor',
@@ -68,6 +68,7 @@ export const mockHomeFeed: HomeFeed = {
         image: HomeImages.constructor,
         overlayColor: 'rgba(45, 55, 72, 0.6)',
         size: 'grid',
+        disabled: true,
       },
       {
         id: 'visualization',
@@ -78,27 +79,32 @@ export const mockHomeFeed: HomeFeed = {
         image: HomeImages.visualization,
         overlayColor: 'rgba(76, 29, 120, 0.58)',
         size: 'grid',
+        disabled: true,
       },
     ],
   },
   inspiration: {
     title: 'Вдохновение',
     seeAllLabel: 'Смотреть все',
+    disabled: true,
     items: [
       {
         id: 'living',
         title: 'Гостиная',
         image: HomeImages.living,
+        disabled: true,
       },
       {
         id: 'dining',
         title: 'Столовая',
         image: HomeImages.dining,
+        disabled: true,
       },
       {
         id: 'office',
         title: 'Кабинет',
         image: HomeImages.office,
+        disabled: true,
       },
     ],
   },
@@ -106,5 +112,6 @@ export const mockHomeFeed: HomeFeed = {
     title: 'Начать проект с нуля?',
     subtitle: 'Используйте Конструктор и 3D-Визуализацию',
     buttonLabel: 'Начать',
+    disabled: true,
   },
 };

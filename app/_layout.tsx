@@ -83,6 +83,10 @@ export default function RootLayout() {
             <Stack.Screen name="orders" options={{ animation: 'slide_from_right' }} />
             <Stack.Screen name="seller" options={{ animation: 'slide_from_right' }} />
             <Stack.Screen name="checkout" options={{ animation: 'slide_from_right' }} />
+            <Stack.Screen
+              name="search"
+              options={{ animation: 'slide_from_bottom', presentation: 'modal' }}
+            />
             <Stack.Screen name="city" options={{ animation: 'slide_from_bottom', presentation: 'modal' }} />
             <Stack.Screen name="+not-found" />
           </Stack>

@@ -11,14 +11,21 @@ export function useProductList(filters: Omit<ProductListParams, 'page'>) {
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
   const pageRef = useRef(1);
+  const hasMoreRef = useRef(false);
+  const loadingMoreRef = useRef(false);
   const filterKey = JSON.stringify(filters);
 
   const load = useCallback(
     async (mode: 'initial' | 'refresh' | 'more') => {
+      if (mode === 'more') {
+        if (loadingMoreRef.current || !hasMoreRef.current) return;
+        loadingMoreRef.current = true;
+        setLoadingMore(true);
+      }
       if (mode === 'initial') setLoading(true);
       if (mode === 'refresh') setRefreshing(true);
-      if (mode === 'more') setLoadingMore(true);
       if (mode !== 'more') setError(null);
 
       const page = mode === 'more' ? pageRef.current + 1 : 1;
@@ -26,25 +33,29 @@ export function useProductList(filters: Omit<ProductListParams, 'page'>) {
       const result = await fetchProducts({
         ...filters,
         page,
-        page_size: filters.page_size ?? 20,
+        page_size: filters.page_size ?? 40,
       });
 
       if (!result.ok) {
         setError(result.error.message);
         setLoading(false);
         setRefreshing(false);
+        loadingMoreRef.current = false;
         setLoadingMore(false);
         return;
       }
 
       pageRef.current = page;
+      const nextHasMore = Boolean(result.data.next);
+      hasMoreRef.current = nextHasMore;
+      setHasMore(nextHasMore);
       setCount(result.data.count);
-      setHasMore(Boolean(result.data.next));
       setItems((prev) =>
         mode === 'more' ? [...prev, ...result.data.results] : result.data.results,
       );
       setLoading(false);
       setRefreshing(false);
+      loadingMoreRef.current = false;
       setLoadingMore(false);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -53,6 +64,7 @@ export function useProductList(filters: Omit<ProductListParams, 'page'>) {
 
   useEffect(() => {
     pageRef.current = 1;
+    hasMoreRef.current = false;
     void load('initial');
   }, [load]);
 
@@ -66,7 +78,7 @@ export function useProductList(filters: Omit<ProductListParams, 'page'>) {
     error,
     refetch: () => load('refresh'),
     loadMore: () => {
-      if (!loadingMore && hasMore) void load('more');
+      void load('more');
     },
   };
 }

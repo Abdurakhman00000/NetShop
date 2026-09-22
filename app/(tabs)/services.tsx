@@ -16,25 +16,24 @@ import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { SearchField } from '@/components/ui/SearchField';
 import { Colors, FontSize, Spacing } from '@/constants/theme';
 import { useCategories } from '@/hooks/useCategories';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useServiceList } from '@/hooks/useServiceList';
-import { useAppSelector } from '@/store/hooks';
 
 export default function ServicesScreen() {
-  const selectedCity = useAppSelector((s) => s.city.selected);
   const { data: categories } = useCategories('service');
 
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
-  const [search, setSearch] = useState('');
+  const debouncedQuery = useDebouncedValue(query.trim(), 350);
+  const isSearching = debouncedQuery.length > 0;
 
   const filters = useMemo(
     () => ({
-      category: categoryId ?? undefined,
-      city: selectedCity?.id,
-      search: search || undefined,
-      page_size: 20,
+      category: isSearching ? undefined : categoryId ?? undefined,
+      search: isSearching ? debouncedQuery : undefined,
+      page_size: 40,
     }),
-    [categoryId, selectedCity?.id, search],
+    [categoryId, debouncedQuery, isSearching],
   );
 
   const { items, count, loading, refreshing, loadingMore, error, refetch, loadMore } =
@@ -46,58 +45,80 @@ export default function ServicesScreen() {
 
   return (
     <View style={styles.root}>
-      <ScreenHeader
-        title="Услуги"
-        subtitle={selectedCity ? selectedCity.name : 'Все города'}
-      />
+      <ScreenHeader title="Услуги" subtitle="Все города" />
       <View style={styles.searchWrap}>
         <SearchField
           value={query}
           onChangeText={setQuery}
-          placeholder="Поиск услуг"
-          onSubmit={() => setSearch(query.trim())}
+          placeholder="Поиск по всем услугам"
+          onSubmit={() => setQuery((q) => q.trim())}
         />
       </View>
-      <View style={styles.chips}>
-        <CategoryChips
-          categories={categories}
-          selectedId={categoryId}
-          onSelect={setCategoryId}
-          flattenChildren={false}
-        />
-      </View>
+      {!isSearching ? (
+        <View style={styles.chips}>
+          <CategoryChips
+            categories={categories}
+            selectedId={categoryId}
+            onSelect={setCategoryId}
+            flattenChildren={false}
+          />
+        </View>
+      ) : null}
 
       {loading && items.length === 0 ? (
         <View style={styles.centered}>
           <ActivityIndicator color={Colors.brand} size="large" />
         </View>
       ) : error && items.length === 0 ? (
-        <EmptyState title="Не удалось загрузить" subtitle={error} actionLabel="Повторить" onAction={refetch} />
+        <EmptyState
+          title="Не удалось загрузить"
+          subtitle={error}
+          actionLabel="Повторить"
+          onAction={refetch}
+        />
       ) : (
         <FlatList
           data={items}
           keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
           contentContainerStyle={styles.list}
+          keyboardShouldPersistTaps="handled"
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={refetch} tintColor={Colors.brand} />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={refetch}
+              tintColor={Colors.brand}
+            />
           }
           onEndReached={loadMore}
-          onEndReachedThreshold={0.4}
+          onEndReachedThreshold={0.35}
           ListHeaderComponent={
-            <Text style={styles.count}>{count} услуг</Text>
+            <Text style={styles.count}>
+              {isSearching ? `Найдено: ${count}` : `${count} услуг`}
+            </Text>
           }
           ListEmptyComponent={
-            <EmptyState title="Ничего не найдено" subtitle="Попробуйте другую категорию" />
+            <EmptyState
+              title="Ничего не найдено"
+              subtitle={
+                isSearching ? 'Попробуйте другой запрос' : 'Попробуйте другую категорию'
+              }
+            />
           }
           ListFooterComponent={
             loadingMore ? (
-              <ActivityIndicator color={Colors.brand} style={{ marginVertical: Spacing.lg }} />
+              <ActivityIndicator
+                color={Colors.brand}
+                style={{ marginVertical: Spacing.lg }}
+              />
             ) : null
           }
           renderItem={({ item }) => (
-            <ServiceCard item={item} onPress={() => openService(item.id)} />
+            <View style={styles.cardWrap}>
+              <ServiceCard item={item} onPress={() => openService(item.id)} />
+            </View>
           )}
-          ItemSeparatorComponent={() => <View style={{ height: Spacing.md }} />}
         />
       )}
     </View>
@@ -108,7 +129,13 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.background },
   searchWrap: { marginTop: Spacing.md },
   chips: { marginTop: Spacing.md, marginBottom: Spacing.sm },
-  list: { paddingHorizontal: Spacing.lg, paddingBottom: Spacing.xxxl },
+  list: {
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xxxl,
+    gap: Spacing.md,
+  },
+  row: { gap: Spacing.md },
+  cardWrap: { flex: 1 },
   count: {
     fontFamily: 'DMSans_400Regular',
     fontSize: FontSize.sm,

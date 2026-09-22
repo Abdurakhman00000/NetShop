@@ -26,10 +26,8 @@ export default function HomeScreen() {
   const { data, loading, error, refreshing, refetch } = useHomeFeed();
 
   const onDirectionPress = useCallback((item: EcosystemDirection) => {
-    if (item.href) {
-      router.push(item.href as '/(tabs)/catalog');
-      return;
-    }
+    if (item.disabled || !item.href) return;
+    router.push(item.href as '/(tabs)/catalog');
   }, []);
 
   if (loading && !data) {
