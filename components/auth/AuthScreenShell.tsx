@@ -1,7 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { memo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { memo, type ReactNode } from 'react';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppLogo } from '@/components/ui/AppLogo';
@@ -9,9 +17,9 @@ import { Colors, FontSize, Spacing } from '@/constants/theme';
 
 type AuthScreenShellProps = {
   title: string;
-  subtitle: string;
-  children: React.ReactNode;
-  footer?: React.ReactNode;
+  subtitle?: string;
+  children: ReactNode;
+  footer?: ReactNode;
 };
 
 function AuthScreenShellComponent({
@@ -21,57 +29,74 @@ function AuthScreenShellComponent({
   footer,
 }: AuthScreenShellProps) {
   const insets = useSafeAreaInsets();
+  const keyboardOffset = Platform.OS === 'ios' ? insets.top + 8 : 0;
 
   return (
-    <View
-      style={[
-        styles.root,
-        {
-          paddingTop: insets.top + Spacing.lg,
-          paddingBottom: insets.bottom + Spacing.lg,
-        },
-      ]}
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior="padding"
+      keyboardVerticalOffset={keyboardOffset}
     >
-      <Pressable
-        onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)'))}
-        hitSlop={12}
-        style={styles.back}
-        accessibilityRole="button"
-        accessibilityLabel="Назад"
+      <ScrollView
+        style={styles.flex}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: insets.top + Spacing.md,
+            paddingBottom: insets.bottom + Spacing.xxl,
+          },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        automaticallyAdjustKeyboardInsets
+        showsVerticalScrollIndicator={false}
+        bounces={false}
       >
-        <Ionicons name="chevron-back" size={24} color={Colors.text} />
-      </Pressable>
+        <Pressable
+          onPress={() => (router.canGoBack() ? router.back() : router.replace('/(tabs)'))}
+          hitSlop={12}
+          style={styles.back}
+          accessibilityRole="button"
+          accessibilityLabel="Назад"
+        >
+          <Ionicons name="chevron-back" size={24} color={Colors.text} />
+        </Pressable>
 
-      <View style={styles.header}>
-        <AppLogo size="sm" />
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.subtitle}>{subtitle}</Text>
-      </View>
+        <View style={styles.header}>
+          <AppLogo size="sm" />
+          <Text style={styles.title}>{title}</Text>
+          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+        </View>
 
-      <View style={styles.body}>{children}</View>
-      {footer ? <View style={styles.footer}>{footer}</View> : null}
-    </View>
+        <View style={styles.body}>{children}</View>
+
+        {footer ? <View style={styles.footer}>{footer}</View> : null}
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 export const AuthScreenShell = memo(AuthScreenShellComponent);
 
 const styles = StyleSheet.create({
-  root: {
+  flex: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: Spacing.xl,
   },
   back: {
     alignSelf: 'flex-start',
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
   },
   header: {
     gap: Spacing.sm,
-    marginBottom: Spacing.xxl,
+    marginBottom: Spacing.xl,
   },
   title: {
-    marginTop: Spacing.md,
+    marginTop: Spacing.sm,
     fontFamily: 'PlayfairDisplay_700Bold',
     fontSize: FontSize.xxl,
     color: Colors.text,
@@ -86,8 +111,7 @@ const styles = StyleSheet.create({
     gap: Spacing.lg,
   },
   footer: {
-    marginTop: 'auto',
-    paddingTop: Spacing.xl,
+    marginTop: Spacing.xxl,
     alignItems: 'center',
   },
 });

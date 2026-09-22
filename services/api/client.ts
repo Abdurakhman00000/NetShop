@@ -10,9 +10,20 @@ import {
 
 type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 
-const apiUrl =
-  (Constants.expoConfig?.extra as { apiUrl?: string } | undefined)?.apiUrl ??
-  'http://169.58.192.208:8005/api/v1';
+const FALLBACK_API_URL = 'http://169.58.192.208:8005/api/v1/';
+
+function resolveApiUrl(): string {
+  const extra = (Constants.expoConfig?.extra ??
+    (Constants as { manifest?: { extra?: Record<string, unknown> } }).manifest?.extra) as
+    | { apiUrl?: string }
+    | undefined;
+
+  const raw = (extra?.apiUrl ?? FALLBACK_API_URL).trim();
+  // Backend expects trailing slash: http://host:8005/api/v1/
+  return raw.endsWith('/') ? raw : `${raw}/`;
+}
+
+const apiUrl = resolveApiUrl();
 
 export const apiClient = axios.create({
   baseURL: apiUrl,
@@ -44,7 +55,7 @@ async function rotateTokens(): Promise<string | null> {
 
   try {
     const { data } = await refreshClient.post<{ access: string; refresh: string }>(
-      '/auth/token/refresh/',
+      'auth/token/refresh/',
       { refresh },
     );
     await saveTokens({ access: data.access, refresh: data.refresh });
@@ -80,11 +91,11 @@ apiClient.interceptors.response.use(
     const url = original?.url ?? '';
 
     const isAuthEndpoint =
-      url.includes('/auth/login/') ||
-      url.includes('/auth/register/') ||
-      url.includes('/auth/google/') ||
-      url.includes('/auth/token/refresh/') ||
-      url.includes('/auth/logout/');
+      url.includes('auth/login/') ||
+      url.includes('auth/register/') ||
+      url.includes('auth/google/') ||
+      url.includes('auth/token/refresh/') ||
+      url.includes('auth/logout/');
 
     if (status !== 401 || !original || original._retry || isAuthEndpoint) {
       return Promise.reject(error);

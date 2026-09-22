@@ -19,6 +19,7 @@
     "android": {
       "package": "com.netshop.app",
       "usesCleartextTraffic": true,
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -43,13 +44,14 @@
         }
       ],
       "expo-image",
-      "expo-font"
+      "expo-font",
+      "./plugins/withCleartextTraffic.js"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
-      "apiUrl": "http://169.58.192.208:8005/api/v1"
+      "apiUrl": "http://169.58.192.208:8005/api/v1/"
     }
   }
 }

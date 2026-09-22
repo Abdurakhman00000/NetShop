@@ -1,12 +1,6 @@
 import { Link, router, type Href } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-} from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
 import { AuthButton, AuthScreenShell, AuthTextField } from '@/components/auth';
 import { Colors, FontSize } from '@/constants/theme';
@@ -47,77 +41,68 @@ export default function RegisterScreen() {
   }, [dispatch, email, fullName, password]);
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    <AuthScreenShell
+      title="Регистрация"
+      // subtitle="Создайте аккаунт — токены придут сразу, отдельный вход не нужен."
+      footer={
+        <Text style={styles.footerText}>
+          Уже есть аккаунт?{' '}
+          <Link href={LOGIN_HREF} style={styles.link}>
+            Войти
+          </Link>
+        </Text>
+      }
     >
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        keyboardShouldPersistTaps="handled"
-        bounces={false}
-      >
-        <AuthScreenShell
-          title="Регистрация"
-          subtitle="Создайте аккаунт — токены придут сразу, отдельный вход не нужен."
-          footer={
-            <Text style={styles.footerText}>
-              Уже есть аккаунт?{' '}
-              <Link href={LOGIN_HREF} style={styles.link}>
-                Войти
-              </Link>
-            </Text>
-          }
-        >
-          <AuthTextField
-            label="Имя"
-            value={fullName}
-            onChangeText={setFullName}
-            placeholder="Айбек"
-            autoCapitalize="words"
-            textContentType="name"
-            autoComplete="name"
-            error={firstFieldError(fieldErrors, 'full_name')}
-          />
-          <AuthTextField
-            label="E-mail"
-            value={email}
-            onChangeText={setEmail}
-            placeholder="user@example.com"
-            keyboardType="email-address"
-            textContentType="emailAddress"
-            autoComplete="email"
-            error={firstFieldError(fieldErrors, 'email')}
-          />
-          <AuthTextField
-            label="Пароль"
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Минимум 8 символов"
-            isPassword
-            textContentType="newPassword"
-            autoComplete="new-password"
-            error={firstFieldError(fieldErrors, 'password')}
-          />
+      <AuthTextField
+        label="Имя"
+        value={fullName}
+        onChangeText={setFullName}
+        placeholder="Айбек"
+        autoCapitalize="words"
+        textContentType="name"
+        autoComplete="name"
+        returnKeyType="next"
+        error={firstFieldError(fieldErrors, 'full_name')}
+      />
+      <AuthTextField
+        label="E-mail"
+        value={email}
+        onChangeText={setEmail}
+        placeholder="user@example.com"
+        keyboardType="email-address"
+        textContentType="emailAddress"
+        autoComplete="email"
+        returnKeyType="next"
+        error={firstFieldError(fieldErrors, 'email')}
+      />
+      <AuthTextField
+        label="Пароль"
+        value={password}
+        onChangeText={setPassword}
+        placeholder="Минимум 8 символов"
+        isPassword
+        textContentType="newPassword"
+        autoComplete="new-password"
+        returnKeyType="done"
+        onSubmitEditing={onSubmit}
+        error={firstFieldError(fieldErrors, 'password')}
+      />
 
-          {error && !fieldErrors.email && !fieldErrors.password && !fieldErrors.full_name ? (
-            <Text style={styles.formError}>{error}</Text>
-          ) : null}
+      {error && !fieldErrors.email && !fieldErrors.password && !fieldErrors.full_name ? (
+        <Text style={styles.formError}>{error}</Text>
+      ) : null}
 
-          <AuthButton
-            label="Создать аккаунт"
-            loading={loading}
-            onPress={onSubmit}
-            disabled={!email.trim() || password.length < 8}
-          />
-        </AuthScreenShell>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <AuthButton
+        label="Создать аккаунт"
+        loading={loading}
+        onPress={onSubmit}
+        disabled={!email.trim() || password.length < 8}
+      />
+    </AuthScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: Colors.background },
-  scroll: { flexGrow: 1 },
   formError: {
     fontFamily: 'DMSans_400Regular',
     fontSize: FontSize.sm,
