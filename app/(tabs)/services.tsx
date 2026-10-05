@@ -9,15 +9,16 @@ import {
   View,
 } from 'react-native';
 
-import { CategoryChips } from '@/components/catalog/CategoryChips';
+import { CatalogHeader } from '@/components/catalog/CatalogHeader';
+import { CategoryTiles } from '@/components/catalog/CategoryTiles';
 import { ServiceCard } from '@/components/catalog/ServiceCard';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { SearchField } from '@/components/ui/SearchField';
+import { ServiceCategoryImages } from '@/constants/images';
 import { Colors, FontSize, Spacing } from '@/constants/theme';
 import { useCategories } from '@/hooks/useCategories';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useServiceList } from '@/hooks/useServiceList';
+import { pluralRu } from '@/utils/format';
 
 export default function ServicesScreen() {
   const { data: categories } = useCategories('service');
@@ -43,92 +44,121 @@ export default function ServicesScreen() {
     router.push(`/service/${id}` as Href);
   }, []);
 
+  const selected = categories.find((c) => c.id === categoryId);
+  const sectionTitle = isSearching ? 'Результаты поиска' : (selected?.name ?? 'Все услуги');
+  const countLabel = isSearching
+    ? `Найдено: ${count}`
+    : `${count} ${pluralRu(count, ['услуга', 'услуги', 'услуг'])}`;
+
+  const listHeader = (
+    <View style={styles.header}>
+      {!isSearching ? (
+        <CategoryTiles
+          categories={categories}
+          selectedId={categoryId}
+          onSelect={setCategoryId}
+          images={ServiceCategoryImages}
+        />
+      ) : null}
+      <View style={styles.sectionRow}>
+        <Text style={styles.sectionTitle} numberOfLines={1}>
+          {sectionTitle}
+        </Text>
+        {!loading ? <Text style={styles.count}>{countLabel}</Text> : null}
+      </View>
+    </View>
+  );
+
   return (
     <View style={styles.root}>
-      <ScreenHeader title="Услуги" subtitle="Все города" />
-      <View style={styles.searchWrap}>
-        <SearchField
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Поиск по всем услугам"
-          onSubmit={() => setQuery((q) => q.trim())}
-        />
-      </View>
-      {!isSearching ? (
-        <View style={styles.chips}>
-          <CategoryChips
-            categories={categories}
-            selectedId={categoryId}
-            onSelect={setCategoryId}
-            flattenChildren={false}
-          />
-        </View>
-      ) : null}
+      <CatalogHeader
+        title="Услуги"
+        query={query}
+        onChangeQuery={setQuery}
+        onSubmit={() => setQuery((q) => q.trim())}
+        placeholder="Поиск по всем услугам"
+      />
 
-      {loading && items.length === 0 ? (
-        <View style={styles.centered}>
-          <ActivityIndicator color={Colors.brand} size="large" />
-        </View>
-      ) : error && items.length === 0 ? (
-        <EmptyState
-          title="Не удалось загрузить"
-          subtitle={error}
-          actionLabel="Повторить"
-          onAction={refetch}
-        />
-      ) : (
-        <FlatList
-          data={items}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          columnWrapperStyle={styles.row}
-          contentContainerStyle={styles.list}
-          keyboardShouldPersistTaps="handled"
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={refetch}
-              tintColor={Colors.brand}
+      <FlatList
+        data={items}
+        keyExtractor={(item) => item.id}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.list}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={refetch}
+            tintColor={Colors.ink}
+          />
+        }
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.35}
+        ListHeaderComponent={listHeader}
+        ListEmptyComponent={
+          loading ? (
+            <View style={styles.centered}>
+              <ActivityIndicator color={Colors.ink} size="large" />
+            </View>
+          ) : error ? (
+            <EmptyState
+              title="Не удалось загрузить"
+              subtitle={error}
+              actionLabel="Повторить"
+              onAction={refetch}
             />
-          }
-          onEndReached={loadMore}
-          onEndReachedThreshold={0.35}
-          ListHeaderComponent={
-            <Text style={styles.count}>
-              {isSearching ? `Найдено: ${count}` : `${count} услуг`}
-            </Text>
-          }
-          ListEmptyComponent={
+          ) : (
             <EmptyState
               title="Ничего не найдено"
               subtitle={
                 isSearching ? 'Попробуйте другой запрос' : 'Попробуйте другую категорию'
               }
             />
-          }
-          ListFooterComponent={
-            loadingMore ? (
-              <ActivityIndicator
-                color={Colors.brand}
-                style={{ marginVertical: Spacing.lg }}
-              />
-            ) : null
-          }
-          renderItem={({ item }) => (
-            <View style={styles.cardWrap}>
-              <ServiceCard item={item} onPress={() => openService(item.id)} />
-            </View>
-          )}
-        />
-      )}
+          )
+        }
+        ListFooterComponent={
+          loadingMore ? (
+            <ActivityIndicator color={Colors.ink} style={{ marginVertical: Spacing.lg }} />
+          ) : null
+        }
+        renderItem={({ item }) => (
+          <View style={styles.cardWrap}>
+            <ServiceCard item={item} onPress={() => openService(item.id)} />
+          </View>
+        )}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.background },
-  searchWrap: { marginTop: Spacing.md },
-  chips: { marginTop: Spacing.md, marginBottom: Spacing.sm },
+  header: {
+    marginHorizontal: -Spacing.lg,
+    paddingTop: Spacing.lg,
+    gap: Spacing.md,
+  },
+  sectionRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.xs,
+  },
+  sectionTitle: {
+    flex: 1,
+    fontFamily: 'DMSans_700Bold',
+    fontSize: FontSize.lg,
+    color: Colors.ink,
+  },
+  count: {
+    fontFamily: 'DMSans_400Regular',
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+  },
   list: {
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.xxxl,
@@ -136,11 +166,5 @@ const styles = StyleSheet.create({
   },
   row: { gap: Spacing.md },
   cardWrap: { flex: 1 },
-  count: {
-    fontFamily: 'DMSans_400Regular',
-    fontSize: FontSize.sm,
-    color: Colors.textSecondary,
-    marginBottom: Spacing.sm,
-  },
-  centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  centered: { paddingVertical: Spacing.xxxl, alignItems: 'center', justifyContent: 'center' },
 });

@@ -16,6 +16,41 @@ export const HomeImages = {
   office: require('@/assets/images/home/insp-office.webp') as ImageSource,
 } as const;
 
+/** Top-level product category tiles, keyed by category slug from the API. */
+export const CatalogCategoryImages: Record<string, ImageSource> = {
+  'мебель': require('@/assets/images/catalog/cat-furniture.webp'),
+  'освещение': require('@/assets/images/catalog/cat-lighting.webp'),
+  'текстиль': require('@/assets/images/catalog/cat-textile.webp'),
+  'посуда-и-кухня': require('@/assets/images/catalog/cat-kitchen.webp'),
+  'декор': require('@/assets/images/catalog/cat-decor.webp'),
+  'сантехника': require('@/assets/images/catalog/cat-plumbing.webp'),
+  'инструменты': require('@/assets/images/catalog/cat-tools.webp'),
+  'бытовая-техника': require('@/assets/images/catalog/cat-appliances.webp'),
+  'стройматериалы': require('@/assets/images/catalog/cat-building.webp'),
+  'хозтовары': require('@/assets/images/catalog/cat-household.webp'),
+  'сад-и-двор': require('@/assets/images/catalog/cat-garden.webp'),
+  'детская': require('@/assets/images/catalog/cat-kids.webp'),
+};
+
+/** Service category tiles, keyed by category slug from the API. */
+export const ServiceCategoryImages: Record<string, ImageSource> = {
+  'сантехника': require('@/assets/images/services/svc-plumbing.webp'),
+  'электрика': require('@/assets/images/services/svc-electric.webp'),
+  'уборка': require('@/assets/images/services/svc-cleaning.webp'),
+  'ремонт-квартир': require('@/assets/images/services/svc-renovation.webp'),
+  'сборка-мебели': require('@/assets/images/services/svc-assembly.webp'),
+  'установка-техники': require('@/assets/images/services/svc-install.webp'),
+  'ремонт-бытовой-техники': require('@/assets/images/services/svc-repair.webp'),
+  'кондиционеры-и-вентиляция': require('@/assets/images/services/svc-aircon.webp'),
+  'малярные-работы': require('@/assets/images/services/svc-painting.webp'),
+  'плиточные-работы': require('@/assets/images/services/svc-tiling.webp'),
+  'натяжные-потолки': require('@/assets/images/services/svc-ceiling.webp'),
+  'окна-и-двери': require('@/assets/images/services/svc-windows.webp'),
+  'грузчики-и-переезд': require('@/assets/images/services/svc-moving.webp'),
+  'дизайн-интерьера': require('@/assets/images/services/svc-design.webp'),
+  'другое': require('@/assets/images/services/svc-other.webp'),
+};
+
 export const WelcomeImages = {
   background: require('@/assets/images/welcome/welcome-bg.webp') as ImageSource,
   polaroid1: require('@/assets/images/welcome/polaroid-1.webp') as ImageSource,

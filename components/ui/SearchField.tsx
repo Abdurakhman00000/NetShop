@@ -12,6 +12,8 @@ type SearchFieldProps = {
   autoFocus?: boolean;
   /** Remove horizontal margin when embedded in custom layouts. */
   flush?: boolean;
+  /** `onDark` renders a solid white pill for dark headers. */
+  tone?: 'default' | 'onDark';
 } & Pick<TextInputProps, 'onFocus' | 'onBlur'>;
 
 function SearchFieldComponent({
@@ -21,12 +23,25 @@ function SearchFieldComponent({
   onSubmit,
   autoFocus = false,
   flush = false,
+  tone = 'default',
 }: SearchFieldProps) {
   const [focused, setFocused] = useState(false);
+  const onDark = tone === 'onDark';
 
   return (
-    <View style={[styles.wrap, flush && styles.flush, focused && styles.focused]}>
-      <Ionicons name="search" size={18} color={Colors.textMuted} />
+    <View
+      style={[
+        styles.wrap,
+        flush && styles.flush,
+        onDark && styles.onDark,
+        focused && (onDark ? styles.focusedOnDark : styles.focused),
+      ]}
+    >
+      <Ionicons
+        name="search"
+        size={onDark ? 20 : 18}
+        color={onDark ? Colors.textSecondary : Colors.textMuted}
+      />
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -76,6 +91,15 @@ const styles = StyleSheet.create({
   },
   focused: {
     borderColor: Colors.brand,
+  },
+  onDark: {
+    backgroundColor: Colors.surfaceElevated,
+    borderColor: Colors.surfaceElevated,
+    borderRadius: Radii.lg,
+    paddingVertical: 14,
+  },
+  focusedOnDark: {
+    borderColor: Colors.textMuted,
   },
   input: {
     flex: 1,

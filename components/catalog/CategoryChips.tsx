@@ -10,6 +10,8 @@ type CategoryChipsProps = {
   onSelect: (id: string | null) => void;
   /** Flatten first-level children into chips when parents have children. */
   flattenChildren?: boolean;
+  allLabel?: string;
+  tone?: 'brand' | 'dark';
 };
 
 function flatten(categories: Category[]): Category[] {
@@ -29,8 +31,11 @@ function CategoryChipsComponent({
   selectedId,
   onSelect,
   flattenChildren = true,
+  allLabel = 'Все',
+  tone = 'brand',
 }: CategoryChipsProps) {
   const chips = flattenChildren ? flatten(categories) : categories;
+  const activeStyle = tone === 'dark' ? styles.chipActiveDark : styles.chipActive;
 
   return (
     <ScrollView
@@ -40,9 +45,11 @@ function CategoryChipsComponent({
     >
       <Pressable
         onPress={() => onSelect(null)}
-        style={[styles.chip, selectedId == null && styles.chipActive]}
+        style={[styles.chip, selectedId == null && activeStyle]}
       >
-        <Text style={[styles.label, selectedId == null && styles.labelActive]}>Все</Text>
+        <Text style={[styles.label, selectedId == null && styles.labelActive]}>
+          {allLabel}
+        </Text>
       </Pressable>
       {chips.map((cat) => {
         const active = selectedId === cat.id;
@@ -50,7 +57,7 @@ function CategoryChipsComponent({
           <Pressable
             key={cat.id}
             onPress={() => onSelect(active ? null : cat.id)}
-            style={[styles.chip, active && styles.chipActive]}
+            style={[styles.chip, active && activeStyle]}
           >
             <Text style={[styles.label, active && styles.labelActive]}>{cat.name}</Text>
           </Pressable>
@@ -78,6 +85,10 @@ const styles = StyleSheet.create({
   chipActive: {
     backgroundColor: Colors.brand,
     borderColor: Colors.brand,
+  },
+  chipActiveDark: {
+    backgroundColor: Colors.ink,
+    borderColor: Colors.ink,
   },
   label: {
     fontFamily: 'DMSans_500Medium',

@@ -28,6 +28,8 @@ export const Colors = {
   tabBarActiveBg: '#FFFFFF',
   tabBarActiveFg: '#1C1C1E',
   tabBarInactiveIcon: '#FFFFFF',
+  ink: '#111111',
+  notification: '#FF3B30',
   avatarBg: '#EDE7F6',
   avatarIcon: '#7E57C2',
 
